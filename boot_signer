@@ -1,0 +1,50 @@
+#!/usr/bin/env python
+
+import os
+import requests
+import sys
+import urllib
+
+WARDEN_HOST = os.environ.get("WARDEN_HOST", "localhost")
+WARDEN_PORT = os.environ.get("WARDEN_PORT", 9000)
+WARDEN_PRODUCT = os.environ.get("WARDEN_PRODUCT")
+WARDEN_KEYSET = os.environ.get("WARDEN_KEYSET", "dev")
+WARDEN_CLIENT_CERT = os.environ.get("WARDEN_CLIENT_CERT", "./client.crt")
+WARDEN_CLIENT_KEY = os.environ.get("WARDEN_CLIENT_KEY", "./client.key")
+WARDEN_SERVER_CERT = os.environ.get("WARDEN_SERVER_CERT")
+
+if not WARDEN_PRODUCT:
+  print >> sys.stderr, "required ${WARDEN_PRODUCT} environment variable not found"
+  raise SystemExit(1)
+
+if not WARDEN_SERVER_CERT:
+  print >> sys.stderr, "required ${WARDEN_SERVER_CERT} environment variable not found"
+  raise SystemExit(1)
+
+if len(sys.argv) < 4:
+  print >> sys.stderr, "usage: %s <target> <input> <key> <cert> <output>" % (sys.argv[0],)
+  raise SystemExit(2)
+
+target = urllib.quote(sys.argv[1])
+URL = "https://%s:%s/sign/%s-%s-boot?target=%s" % (WARDEN_HOST, WARDEN_PORT, WARDEN_PRODUCT, WARDEN_KEYSET, target)
+
+try:
+  data = file(sys.argv[2]).read()
+except Exception, err:
+  print >> sys.stderr, "error reading input file", err
+  raise SystemExit(3)
+
+try:
+  resp = requests.post(URL, cert=(WARDEN_CLIENT_CERT, WARDEN_CLIENT_KEY), data=data, verify=WARDEN_SERVER_CERT)
+  if resp.status_code != 200:
+    print >> sys.stderr, "server returned error: %s" % (resp.status_code,)
+    raise SystemExit(4)
+except Exception, err:
+  print >> sys.stderr, "error communicating with server", err
+  raise SystemExit(5)
+
+try:
+  file(sys.argv[5], 'w').write(resp.content)
+except Exception, err:
+  print >> sys.stderr, "error writing server output", err
+  raise SystemExit(6)
