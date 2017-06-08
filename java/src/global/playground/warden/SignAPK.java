@@ -182,7 +182,6 @@ class SignAPK extends Object {
       // set up our server cert-pinning validation scheme
       SSLContext ctx = SSLContext.getInstance("TLSv1.2");
       ctx.init(km, tm, new SecureRandom());
-      System.err.println("url: '" + url + "'");
       HttpsURLConnection cxn = (HttpsURLConnection)(new URL(url).openConnection());
       cxn.setHostnameVerifier(hv);
       cxn.setSSLSocketFactory(ctx.getSocketFactory());
@@ -261,8 +260,8 @@ class SignAPK extends Object {
         serverCert = null;
       }
 
-      if (all.containsKey("WARDEN_SERVER")) {
-        server = all.get("WARDEN_SERVER");
+      if (all.containsKey("WARDEN_HOST")) {
+        server = all.get("WARDEN_HOST");
       } else {
         server = "localhost";
       }
