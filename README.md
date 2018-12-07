@@ -1,6 +1,6 @@
 # Warden Clients
 
-This is a collection of client scripts that replace parts of their Android build system tools that
+This is a collection of client scripts that replace parts of the Android (AOSP) build system tools that
 generate and sign flashable system images and OTA images. These scripts implement support for
 remote-signing of binaries via the Playground Warden signing service.
 
@@ -10,6 +10,8 @@ signed. You instruct the AOSP top-level build/OTA scripts to use these alternati
 flags to those tools.
 
 Currently only A/B (i.e. Android Nougat and later) builds are supported. 
+
+Special thanks to Playground Global, LLC for open-sourcing this software. See `LICENSE` for details.
 
 # Files
 
